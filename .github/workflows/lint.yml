@@ -2,7 +2,7 @@
 name: Lint
 
 on:
-  pull_request:
+  pull_request: {}
   push:
     branches:
       - main
@@ -76,4 +76,3 @@ jobs:
         if: steps.changed-files.outputs.yaml_any_changed == 'true'
         run: |
           yamllint -c .yamllint.yml ${{ steps.changed-files.outputs.yaml_all_changed_files }}
-
