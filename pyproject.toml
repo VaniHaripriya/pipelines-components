@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | __pycache__
+  | node_modules
+  | .*/_generated/
+)/
+'''
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = ["D100", "D104"]
+match_dir = "(?!\\.|build|dist|\\.venv).*"
