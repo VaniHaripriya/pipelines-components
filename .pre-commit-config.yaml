@@ -1,3 +1,4 @@
+---
 repos:
   - repo: https://github.com/psf/black
     rev: 24.4.2
@@ -28,4 +29,3 @@ repos:
         entry: python scripts/check_imports.py
         language: system
         types: [python]
-

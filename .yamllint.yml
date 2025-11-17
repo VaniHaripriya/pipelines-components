@@ -1,3 +1,4 @@
+---
 extends: default
 rules:
   line-length:
@@ -5,6 +6,3 @@ rules:
     level: warning
   truthy:
     level: warning
-  document-start:
-    level: warning
-

@@ -1,3 +1,4 @@
+---
 name: Lint
 
 on:
@@ -62,7 +63,9 @@ jobs:
       - name: Run custom import guard
         if: steps.changed-files.outputs.python_any_changed == 'true'
         run: |
-          python scripts/check_imports.py --config scripts/import_exceptions.json ${{ steps.changed-files.outputs.python_all_changed_files }}
+          python scripts/check_imports.py \
+            --config scripts/import_exceptions.json \
+            ${{ steps.changed-files.outputs.python_all_changed_files }}
 
       - name: Run markdownlint (changed files)
         if: steps.changed-files.outputs.markdown_any_changed == 'true'
