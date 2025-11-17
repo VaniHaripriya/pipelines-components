@@ -45,6 +45,7 @@ class ImportGuardConfig:
         module_allowlist: Optional[Iterable[str]] = None,
         file_allowlist: Optional[Dict[str, Iterable[str]]] = None,
     ) -> None:
+        """Initialize configuration from module and path allow lists."""
         self.module_allowlist: Set[str] = {canonicalize_module_name(item) for item in module_allowlist or []}
         self.file_allowlist: Dict[Path, Set[str]] = {}
         for raw_path, modules in (file_allowlist or {}).items():
@@ -53,6 +54,7 @@ class ImportGuardConfig:
 
     @classmethod
     def from_path(cls, path: Path) -> "ImportGuardConfig":
+        """Instantiate configuration from a JSON file if it exists."""
         if not path.exists():
             return cls()
         with path.open("r", encoding="utf-8") as handle:
@@ -62,6 +64,7 @@ class ImportGuardConfig:
         return cls(modules, files)
 
     def is_allowed(self, module: str, file_path: Path) -> bool:
+        """Return True when a module is allow-listed for the given file path."""
         canonical_module = canonicalize_module_name(module)
         if canonical_module in self.module_allowlist:
             return True
@@ -75,10 +78,12 @@ class ImportGuardConfig:
 
 
 def canonicalize_module_name(name: str) -> str:
+    """Return the top-level portion of a dotted module path."""
     return name.split(".")[0]
 
 
 def discover_python_files(paths: Sequence[str]) -> List[Path]:
+    """Collect Python files from individual files or by walking directories."""
     python_files: List[Path] = []
     for raw_path in paths:
         path = Path(raw_path)
@@ -93,6 +98,7 @@ def discover_python_files(paths: Sequence[str]) -> List[Path]:
 
 
 def build_stdlib_index() -> Set[str]:
+    """Return a set containing names of standard-library modules."""
     candidates: Set[str] = set(sys.builtin_module_names)
     stdlib_path = Path(sysconfig.get_paths()["stdlib"]).resolve()
     for module in pkgutil.walk_packages([str(stdlib_path)]):
@@ -102,6 +108,7 @@ def build_stdlib_index() -> Set[str]:
 
 
 def extract_top_level_imports(node: ast.AST) -> Iterable[Tuple[str, int]]:
+    """Yield (module, line) tuples for top-level import statements."""
     for child in ast.iter_child_nodes(node):
         if isinstance(child, (ast.Import, ast.ImportFrom)):
             if isinstance(child, ast.ImportFrom) and child.level > 0:
@@ -125,6 +132,7 @@ def extract_top_level_imports(node: ast.AST) -> Iterable[Tuple[str, int]]:
 
 
 def find_asset_root(path: Path) -> Optional[Path]:
+    """Find the nearest directory containing metadata for an asset."""
     for parent in [path] + list(path.parents):
         if (parent / "metadata.yaml").exists():
             return parent
@@ -132,6 +140,7 @@ def find_asset_root(path: Path) -> Optional[Path]:
 
 
 def ensure_dependency_files(asset_root: Path) -> Optional[str]:
+    """Return warning message when dev/test requirement files are absent."""
     for filename in DEFAULT_REQUIREMENT_FILES:
         if (asset_root / filename).exists():
             return None
@@ -139,6 +148,7 @@ def ensure_dependency_files(asset_root: Path) -> Optional[str]:
 
 
 def check_imports(files: Sequence[Path], config: ImportGuardConfig) -> int:
+    """Validate import style across a collection of Python files."""
     stdlib_modules = build_stdlib_index()
     violations: List[str] = []
     dependency_warnings: Set[str] = set()
@@ -174,6 +184,7 @@ def check_imports(files: Sequence[Path], config: ImportGuardConfig) -> int:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Ensure top-level Python imports are limited to the standard library.")
     parser.add_argument(
         "paths",
@@ -189,6 +200,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Run the import guard script."""
     args = parse_args()
     config = ImportGuardConfig.from_path(Path(args.config))
     python_files = discover_python_files(args.paths)
