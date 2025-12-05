@@ -14,6 +14,15 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Ensure PR SHAs are fetched
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      run: |
+        BASE_SHA="${{ github.event.pull_request.base.sha }}"
+        HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+        # Fetch both commits in case checkout depth was shallow.
+        git fetch --no-tags --prune --depth=1 origin "$BASE_SHA" "$HEAD_SHA" || true
+
     - name: Get changed files
       id: get-files
       shell: bash
@@ -21,8 +30,9 @@ runs:
         PATTERNS="${{ inputs.patterns }}"
         
         if [ "${{ github.event_name }}" = "pull_request" ]; then
-          BASE="origin/${{ github.base_ref }}"
-          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE}...HEAD" -- $PATTERNS | xargs)
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS | tr '\n' ' ' | sed 's/ $//')
         else
           BEFORE="${{ github.event.before }}"
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
