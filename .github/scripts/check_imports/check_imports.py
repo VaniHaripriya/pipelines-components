@@ -3,7 +3,7 @@
 
 This script enforces the repository’s import guard strategy: third-party or
 heavy dependencies must be imported within the function or pipeline body rather
-than at module import time.
+than at module import time-test
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ def discover_python_files(paths: Sequence[str], restrict_to: Optional[Sequence[s
                     filtered_files.append(file_path)
                     break
                 except ValueError:
-                    # File is not within this restricted path
+                    # File is not within restricted path
                     continue
         return filtered_files
 
