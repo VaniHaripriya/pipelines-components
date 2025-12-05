@@ -5,7 +5,7 @@ This script enforces the repository’s import guard strategy: third-party or
 heavy dependencies must be imported within the function or pipeline body rather
 than at module import time-test
 """
-# TEMP: intentional change to trigger changed-files testing
+# TEMP:
 
 from __future__ import annotations
 
@@ -88,7 +88,7 @@ def discover_python_files(paths: Sequence[str], restrict_to: Optional[Sequence[s
                     continue
                 python_files.append(candidate)
 
-    # Filter files to only those within restricted directories
+    # Filter files to only those within the restricted directories
     if restricted_paths:
         filtered_files: list[Path] = []
         for file_path in python_files:
