@@ -17,8 +17,7 @@ runs:
     - name: Get changed files
       id: get-files
       shell: bash
-      run: |
-        
+      run: |        
         PATTERNS="${{ inputs.patterns }}"
         # Expand patterns safely into an array to avoid word-splitting issues.
         read -r -a PATTERN_ARRAY <<< "$PATTERNS"
@@ -45,7 +44,5 @@ runs:
           fi
         fi
         
-        echo "DEBUG changed-files: files='$FILES'" >&2
         echo "files=$FILES" >> $GITHUB_OUTPUT
         [ -n "$FILES" ] && echo "any_changed=true" >> $GITHUB_OUTPUT || echo "any_changed=false" >> $GITHUB_OUTPUT
-
