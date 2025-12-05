@@ -36,7 +36,7 @@ jobs:
         id: changed-python
         uses: ./.github/actions/changed-files
         with:
-          patterns: "*.py"
+          patterns: "**/*.py"
 
       - name: Run ruff format check (changed files)
         if: steps.changed-python.outputs.any_changed == 'true'
