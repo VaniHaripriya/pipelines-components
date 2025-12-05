@@ -11,19 +11,28 @@ authors = [
 ]
 license = "Apache-2.0"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "kfp>=2.5.0",
 ]
 
 [project.optional-dependencies]
+lint = [
+  "ruff==0.8.4",
+  "yamllint==1.35.1",
+]
+test = [
+  "pytest>=8.0.0",
+  "pytest-cov>=4.1.0",
+]
 ci = [
     "pytest",
 ]
 # Local development (extends ci with additional tools)
 dev = [
     "kfp-components[ci]",
-    # Add linting/formatting tools here as needed:
+    "kfp-components[lint]",
+    "kfp-components[test]",
 ]
 
 [project.urls]
@@ -54,3 +63,47 @@ packages = [
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.json"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "__pycache__",
+    "node_modules",
+    "**/_generated/",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E, W), pyflakes (F), isort (I), pydocstyle (D)
+select = ["E", "W", "F", "I", "D"]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["kubeflow"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+# Pytest configuration for KEP-913 repository structure
+# Currently tests are in scripts/ only. When component/pipeline tests are added,
+# this configuration will need to be updated to handle tests in components/*/tests/
+[tool.pytest.ini_options]
+testpaths = ["scripts"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# Don't search these directories
+norecursedirs = [".git", ".venv", "build", "dist", "__pycache__", "components", "pipelines"]
