@@ -14,15 +14,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Ensure PR SHAs are fetched
-      if: ${{ github.event_name == 'pull_request' }}
-      shell: bash
-      run: |
-        BASE_SHA="${{ github.event.pull_request.base.sha }}"
-        HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-        # Fetch both commits in case checkout depth was shallow.
-        git fetch --no-tags --prune --depth=1 origin "$BASE_SHA" "$HEAD_SHA" || true
-
     - name: Get changed files
       id: get-files
       shell: bash
@@ -30,9 +21,36 @@ runs:
         PATTERNS="${{ inputs.patterns }}"
         
         if [ "${{ github.event_name }}" = "pull_request" ]; then
+          BASE_REF="${{ github.base_ref }}"
+          # Ensure the base branch exists locally with enough history for a merge base.
+          git fetch --no-tags --prune --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
+          git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+
+          # If merge-base is still missing, unshallow entirely as a fallback.
+          if ! git merge-base --is-ancestor "origin/${BASE_REF}" HEAD && ! git merge-base HEAD "origin/${BASE_REF}" >/dev/null 2>&1; then
+            git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" --unshallow || true
+          fi
+
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS | tr '\n' ' ' | sed 's/ $//')
+
+          # Try to establish a merge base; if none, fall back to direct diffs.
+          MERGE_BASE=$(git merge-base "origin/${BASE_REF}" HEAD 2>/dev/null || git merge-base "${BASE_SHA}" "${HEAD_SHA}" 2>/dev/null || true)
+
+          FILES=""
+          if [ -n "$MERGE_BASE" ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMRT "${MERGE_BASE}..${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          fi
+          if [ -z "$FILES" ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMRT "origin/${BASE_REF}...HEAD" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          fi
+          if [ -z "$FILES" ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          fi
+          if [ -z "$FILES" ]; then
+            # Last resort when histories are unrelated: double-dot diff.
+            FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}" "${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          fi
         else
           BEFORE="${{ github.event.before }}"
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
