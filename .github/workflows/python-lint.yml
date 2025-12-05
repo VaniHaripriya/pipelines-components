@@ -38,13 +38,6 @@ jobs:
         with:
           patterns: "**/*.py"
 
-      - name: Debug changed Python files
-        run: |
-          echo "action files='${{ steps.changed-python.outputs.files }}'"
-          echo "action any_changed='${{ steps.changed-python.outputs.any_changed }}'"
-          echo "git diff (base...head) '**/*.py':"
-          git diff --name-only "${{ github.event.pull_request.base.sha }}"..."${{ github.event.pull_request.head.sha }}" -- "**/*.py"
-
       - name: Run ruff format check (changed files)
         if: steps.changed-python.outputs.any_changed == 'true'
         run: |

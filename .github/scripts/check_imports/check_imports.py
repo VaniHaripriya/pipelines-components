@@ -5,7 +5,7 @@ This script enforces the repository’s import guard strategy: third-party or
 heavy dependencies must be imported within the function or pipeline body rather
 than at module import time-test
 """
-# TEMP: intentional change to trigger changed-files testing
+# TEMP:new
 
 from __future__ import annotations
 
