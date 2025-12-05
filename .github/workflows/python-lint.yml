@@ -21,6 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch base branch (PRs only)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --prune origin ${{ github.base_ref }}:${{ github.base_ref }}
+
       - name: Setup Python & deps
         uses: ./.github/actions/setup-python-ci
         with:
