@@ -22,13 +22,14 @@ runs:
         
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           BASE_REF="${{ github.base_ref }}"
-          # Ensure the base branch exists locally with enough history for a merge base.
-          git fetch --no-tags --prune --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
-          git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
-
-          # If merge-base is still missing, unshallow entirely as a fallback.
-          if ! git merge-base --is-ancestor "origin/${BASE_REF}" HEAD && ! git merge-base HEAD "origin/${BASE_REF}" >/dev/null 2>&1; then
-            git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" --unshallow || true
+          # Fetch base ref only if it exists remotely.
+          if git ls-remote --exit-code origin "refs/heads/${BASE_REF}" >/dev/null 2>&1; then
+            if git rev-parse --is-shallow-repository >/dev/null 2>&1 && [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+              git fetch --no-tags --prune --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
+              git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+            else
+              git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+            end
           fi
 
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
