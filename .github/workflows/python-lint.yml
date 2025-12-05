@@ -21,6 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch base branch (PRs only)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --prune origin ${{ github.base_ref }}:${{ github.base_ref }}
+
       - name: Setup Python & deps
         uses: ./.github/actions/setup-python-ci
         with:
@@ -31,7 +36,14 @@ jobs:
         id: changed-python
         uses: ./.github/actions/changed-files
         with:
-          patterns: "*.py"
+          patterns: "**/*.py"
+
+      - name: Debug changed Python files
+        run: |
+          echo "action files='${{ steps.changed-python.outputs.files }}'"
+          echo "action any_changed='${{ steps.changed-python.outputs.any_changed }}'"
+          echo "git diff (base...head) '**/*.py':"
+          git diff --name-only "${{ github.event.pull_request.base.sha }}"..."${{ github.event.pull_request.head.sha }}" -- "**/*.py"
 
       - name: Run ruff format check (changed files)
         if: steps.changed-python.outputs.any_changed == 'true'
