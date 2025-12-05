@@ -22,8 +22,10 @@ runs:
         
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           BASE_REF="${{ github.base_ref }}"
+          HAS_BASE_REF=0
           # Fetch base ref only if it exists remotely.
           if git ls-remote --exit-code origin "refs/heads/${BASE_REF}" >/dev/null 2>&1; then
+            HAS_BASE_REF=1
             if git rev-parse --is-shallow-repository >/dev/null 2>&1 && [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
               git fetch --no-tags --prune --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
               git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
@@ -36,14 +38,22 @@ runs:
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
 
           # Try to establish a merge base; if none, fall back to direct diffs.
-          MERGE_BASE=$(git merge-base "origin/${BASE_REF}" HEAD 2>/dev/null || git merge-base "${BASE_SHA}" "${HEAD_SHA}" 2>/dev/null || true)
+          MERGE_BASE=""
+          if [ "$HAS_BASE_REF" -eq 1 ]; then
+            MERGE_BASE=$(git merge-base "origin/${BASE_REF}" HEAD 2>/dev/null || true)
+          fi
+          if [ -z "$MERGE_BASE" ]; then
+            MERGE_BASE=$(git merge-base "${BASE_SHA}" "${HEAD_SHA}" 2>/dev/null || true)
+          fi
 
           FILES=""
           if [ -n "$MERGE_BASE" ]; then
             FILES=$(git diff --name-only --diff-filter=ACMRT "${MERGE_BASE}..${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
           fi
           if [ -z "$FILES" ]; then
-            FILES=$(git diff --name-only --diff-filter=ACMRT "origin/${BASE_REF}...HEAD" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+            if [ "$HAS_BASE_REF" -eq 1 ]; then
+              FILES=$(git diff --name-only --diff-filter=ACMRT "origin/${BASE_REF}...HEAD" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+            fi
           fi
           if [ -z "$FILES" ]; then
             FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
