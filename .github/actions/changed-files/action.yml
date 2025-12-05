@@ -25,14 +25,19 @@ runs:
           HAS_BASE_REF=0
           # Fetch base ref only if it exists remotely.
           if git ls-remote --exit-code origin "refs/heads/${BASE_REF}" >/dev/null 2>&1; then
-            HAS_BASE_REF=1
             if git rev-parse --is-shallow-repository >/dev/null 2>&1 && [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
-              git fetch --no-tags --prune --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
-              git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+              git fetch --no-tags --deepen=200 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || \
+              git fetch --no-tags origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
             else
-              git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+              git fetch --no-tags origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
+            fi
+            if git show-ref --verify --quiet "refs/remotes/origin/${BASE_REF}"; then
+              HAS_BASE_REF=1
             fi
           fi
+
+          # Ensure PR base/head commits are present even if the branch ref is missing or shallow.
+          git fetch --no-tags origin "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" || true
 
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
@@ -50,10 +55,8 @@ runs:
           if [ -n "$MERGE_BASE" ]; then
             FILES=$(git diff --name-only --diff-filter=ACMRT "${MERGE_BASE}..${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
           fi
-          if [ -z "$FILES" ]; then
-            if [ "$HAS_BASE_REF" -eq 1 ]; then
-              FILES=$(git diff --name-only --diff-filter=ACMRT "origin/${BASE_REF}...HEAD" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
-            fi
+          if [ -z "$FILES" ] && [ "$HAS_BASE_REF" -eq 1 ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMRT "origin/${BASE_REF}...HEAD" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
           fi
           if [ -z "$FILES" ]; then
             FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
