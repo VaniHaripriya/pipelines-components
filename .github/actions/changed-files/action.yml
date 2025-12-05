@@ -29,7 +29,7 @@ runs:
               git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
             else
               git fetch --no-tags --prune origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}" || true
-            end
+            fi
           fi
 
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
