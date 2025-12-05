@@ -27,8 +27,11 @@ runs:
           # Fetch both commits explicitly; works even when base ref is missing or shallow.
           git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA" || true
 
-          # Simple, robust diff: double-dot between the two SHAs.
-          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}" "${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          # Prefer symmetric diff (merge-base) to capture all PR changes; fall back to double-dot.
+          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          if [ -z "$FILES" ]; then
+            FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}" "${HEAD_SHA}" -- $PATTERNS 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          fi
         else
           BEFORE="${{ github.event.before }}"
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
