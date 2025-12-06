@@ -4,11 +4,15 @@ YAMLLINT ?= uv run yamllint
 PYTHON ?= uv run python
 PYTEST ?= uv run pytest
 
-.PHONY: format lint lint-format lint-python lint-markdown lint-yaml lint-imports test test-coverage
+.PHONY: format fix lint lint-format lint-python lint-markdown lint-yaml lint-imports test test-coverage
 
 format:
 	$(RUFF) format components pipelines scripts
 	$(RUFF) check --fix components pipelines scripts
+
+fix: format
+	@echo "Auto-fixing Python formatting and lint issues..."
+	@echo "Note: Markdown and YAML issues may need manual fixes"
 
 lint: lint-format lint-python lint-markdown lint-yaml lint-imports
 

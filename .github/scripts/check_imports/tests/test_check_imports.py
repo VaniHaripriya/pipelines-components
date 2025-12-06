@@ -9,10 +9,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
 from check_imports import (
     ImportGuardConfig,
-    TopLevelImportVisitor,
     build_stdlib_index,
     canonicalize_module_name,
     check_imports,
@@ -90,7 +88,7 @@ class TestImportGuardConfig:
                     "modules": ["pandas", "numpy"],
                     "files": {
                         "scripts": ["pytest"],
-                    }
+                    },
                 },
                 f,
             )
@@ -227,10 +225,7 @@ class TestDiscoverPythonFiles:
             (scripts_dir / "script.py").touch()
             (other_dir / "other.py").touch()
 
-            files = discover_python_files(
-                [str(tmpdir_path)],
-                restrict_to=[str(components_dir), str(scripts_dir)]
-            )
+            files = discover_python_files([str(tmpdir_path)], restrict_to=[str(components_dir), str(scripts_dir)])
             assert len(files) == 2
             file_names = {f.name for f in files}
             assert file_names == {"comp.py", "script.py"}
@@ -444,4 +439,3 @@ def foo():
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

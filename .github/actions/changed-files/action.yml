@@ -1,3 +1,4 @@
+---
 name: Get Changed Files
 description: Get changed files by extension
 inputs:
@@ -21,7 +22,7 @@ runs:
         PATTERNS="${{ inputs.patterns }}"
         # Expand patterns into an array to avoid word-splitting issues.
         read -r -a PATTERN_ARRAY <<< "$PATTERNS"
-        
+
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
@@ -30,9 +31,11 @@ runs:
           git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA" || true
 
           # Prefer symmetric diff (merge-base) to capture all PR changes
-          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" -- "${PATTERN_ARRAY[@]}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+          FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}...${HEAD_SHA}" \
+            -- "${PATTERN_ARRAY[@]}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
           if [ -z "$FILES" ]; then
-            FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}" "${HEAD_SHA}" -- "${PATTERN_ARRAY[@]}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
+            FILES=$(git diff --name-only --diff-filter=ACMRT "${BASE_SHA}" "${HEAD_SHA}" \
+              -- "${PATTERN_ARRAY[@]}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
           fi
         else
           BEFORE="${{ github.event.before }}"
@@ -40,9 +43,10 @@ runs:
             # First push or force push - check all files
             FILES=$(git ls-files -- "${PATTERN_ARRAY[@]}" | xargs)
           else
-            FILES=$(git diff --name-only --diff-filter=ACMRT "$BEFORE" "${{ github.sha }}" -- "${PATTERN_ARRAY[@]}" | xargs)
+            FILES=$(git diff --name-only --diff-filter=ACMRT "$BEFORE" "${{ github.sha }}" \
+              -- "${PATTERN_ARRAY[@]}" | xargs)
           fi
         fi
-        
+
         echo "files=$FILES" >> $GITHUB_OUTPUT
         [ -n "$FILES" ] && echo "any_changed=true" >> $GITHUB_OUTPUT || echo "any_changed=false" >> $GITHUB_OUTPUT

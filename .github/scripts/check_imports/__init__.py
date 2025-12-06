@@ -17,4 +17,3 @@ __all__ = [
     "discover_python_files",
     "extract_top_level_imports",
 ]
-

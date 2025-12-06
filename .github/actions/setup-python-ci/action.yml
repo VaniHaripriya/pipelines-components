@@ -1,3 +1,4 @@
+---
 name: 'Setup Python CI'
 description: 'Sets up Python and uv package manager with dependencies'
 
@@ -32,4 +33,3 @@ runs:
     - name: Install dependencies from lock file
       shell: bash
       run: uv sync --extra ${{ inputs.extra }}
-
