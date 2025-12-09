@@ -14,7 +14,7 @@ import importlib
 
 def test_imports(package_type: str = "core") -> bool:
     """
-    Test package imports based on package type.
+    Test package imports based on package type-testing.
     
     Args:
         package_type: Either "core" or "third-party"

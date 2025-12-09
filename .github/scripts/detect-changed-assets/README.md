@@ -69,7 +69,7 @@ Examples:
 
 ## Outputs
 
-When run in GitHub Actions, writes to `$GITHUB_OUTPUT`:
+Testing When run in GitHub Actions, writes to `$GITHUB_OUTPUT`:
 
 ### Components and Pipelines
 - `changed-components`: Space-separated list
