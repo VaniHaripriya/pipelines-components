@@ -1,5 +1,5 @@
 name: 'Detect Changed Components and Pipelines'
-description: 'Detects changed components and pipelines in the repository without third-party dependencies'
+description: 'Detects changed components, pipelines, and file types (Python, Markdown, YAML) in the repository'
 author: 'Kubeflow Pipelines Components Team'
 
 inputs:
@@ -40,7 +40,7 @@ outputs:
     description: 'Number of changed pipelines'
     value: ${{ steps.detect.outputs.changed-pipelines-count }}
   has-changes:
-    description: 'Whether any components or pipelines have changed (true/false)'
+    description: 'Whether any components, pipelines, or file types have changed (true/false)'
     value: ${{ steps.detect.outputs.has-changes }}
   has-changed-components:
     description: 'Whether any components have changed (true/false)'
@@ -48,6 +48,42 @@ outputs:
   has-changed-pipelines:
     description: 'Whether any pipelines have changed (true/false)'
     value: ${{ steps.detect.outputs.has-changed-pipelines }}
+  changed-python-files:
+    description: 'Space-separated list of changed Python files (.py)'
+    value: ${{ steps.detect.outputs.changed-python-files }}
+  changed-python-files-json:
+    description: 'JSON array of changed Python files'
+    value: ${{ steps.detect.outputs.changed-python-files-json }}
+  changed-python-files-count:
+    description: 'Number of changed Python files'
+    value: ${{ steps.detect.outputs.changed-python-files-count }}
+  has-changed-python-files:
+    description: 'Whether any Python files have changed (true/false)'
+    value: ${{ steps.detect.outputs.has-changed-python-files }}
+  changed-markdown-files:
+    description: 'Space-separated list of changed Markdown files (.md)'
+    value: ${{ steps.detect.outputs.changed-markdown-files }}
+  changed-markdown-files-json:
+    description: 'JSON array of changed Markdown files'
+    value: ${{ steps.detect.outputs.changed-markdown-files-json }}
+  changed-markdown-files-count:
+    description: 'Number of changed Markdown files'
+    value: ${{ steps.detect.outputs.changed-markdown-files-count }}
+  has-changed-markdown-files:
+    description: 'Whether any Markdown files have changed (true/false)'
+    value: ${{ steps.detect.outputs.has-changed-markdown-files }}
+  changed-yaml-files:
+    description: 'Space-separated list of changed YAML files (.yaml, .yml)'
+    value: ${{ steps.detect.outputs.changed-yaml-files }}
+  changed-yaml-files-json:
+    description: 'JSON array of changed YAML files'
+    value: ${{ steps.detect.outputs.changed-yaml-files-json }}
+  changed-yaml-files-count:
+    description: 'Number of changed YAML files'
+    value: ${{ steps.detect.outputs.changed-yaml-files-count }}
+  has-changed-yaml-files:
+    description: 'Whether any YAML files have changed (true/false)'
+    value: ${{ steps.detect.outputs.has-changed-yaml-files }}
   all-changed-files:
     description: 'All changed files'
     value: ${{ steps.detect.outputs.all-changed-files }}
