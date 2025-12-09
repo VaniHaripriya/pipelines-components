@@ -1,0 +1,71 @@
+name: Test Changed Components
+on: pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required!
+
+      - name: Detect changes
+        id: changes
+        uses: ./.github/actions/detect-changed-assets
+
+      - name: Print all changes
+        if: steps.changes.outputs.has-changes == 'true'
+        run: |
+          for component in ${{ steps.changes.outputs.all-changed-files }}; do
+            echo "Changed file: $component"
+          done
+      - name: Print just changed components
+        if: steps.changes.outputs.has-changed-components == 'true'
+        run: |
+          for component in ${{ steps.changes.outputs.changed-components }}; do
+            echo "Changed component: $component"
+          done
+      - name: Print just changed pipelines
+        if: steps.changes.outputs.has-changed-pipelines == 'true'
+        run: |
+          for component in ${{ steps.changes.outputs.changed-pipelines }}; do
+            echo "Changed pipeline: $component"
+          done
+
+      - name: Print changed Python files
+        if: steps.changes.outputs.has-changed-python-files == 'true'
+        run: |
+          echo "Changed Python files (count: ${{ steps.changes.outputs.changed-python-files-count }}):"
+          for file in ${{ steps.changes.outputs.changed-python-files }}; do
+            echo "  - $file"
+          done
+
+      - name: Print changed Markdown files
+        if: steps.changes.outputs.has-changed-markdown-files == 'true'
+        run: |
+          echo "Changed Markdown files (count: ${{ steps.changes.outputs.changed-markdown-files-count }}):"
+          for file in ${{ steps.changes.outputs.changed-markdown-files }}; do
+            echo "  - $file"
+          done
+
+      - name: Print changed YAML files
+        if: steps.changes.outputs.has-changed-yaml-files == 'true'
+        run: |
+          echo "Changed YAML files (count: ${{ steps.changes.outputs.changed-yaml-files-count }}):"
+          for file in ${{ steps.changes.outputs.changed-yaml-files }}; do
+            echo "  - $file"
+          done
+
+      - name: Test with filter (Python files only)
+        id: filtered-changes
+        uses: ./.github/actions/detect-changed-assets
+        with:
+          filter: '.*\.py$'
+
+      - name: Print filtered changes
+        if: steps.filtered-changes.outputs.has-changes == 'true'
+        run: |
+          echo "Filtered changed files (Python only):"
+          for file in ${{ steps.filtered-changes.outputs.filtered-changed-files }}; do
+            echo "  - $file"
+          done
