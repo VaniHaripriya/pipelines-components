@@ -294,6 +294,21 @@ uv run python scripts/validate_base_images/validate_base_images.py
 
 The script allows any standard Python image matching `python:<version>` (e.g., `python:3.11`, `python:3.10-slim`) in addition to Kubeflow registry images.
 
+### Package Validation
+
+The validation script ensures the `packages` list in `pyproject.toml` stays in sync with the actual
+Python package structure. It discovers all packages in `components/` and `pipelines/` and compares
+them with the declared packages in `pyproject.toml`.
+
+Run the validation locally:
+
+```bash
+uv run python scripts/validate_package_entries/validate_package_entries.py
+```
+
+If validation fails, update the `packages` list in `pyproject.toml` under `[tool.setuptools]` to
+include any missing packages. The script will report exactly which packages are missing or extra.
+
 ### Building Custom Container Images
 
 If your component uses a custom image, test the container build:
