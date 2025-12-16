@@ -71,15 +71,15 @@ def advanced_pipeline(input_str: str = "test", multiplier: int = 3) -> str:
 
 - **Name**: test-component
 - **Stability**: alpha
-- **Dependencies**: 
+- **Dependencies**:
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.0
-- **Tags**: 
+- **Tags**:
   - data-processing
   - example
   - test
-- **Last Verified**: 2025-01-15 00:00:00+00:00
-- **Owners**: 
+- **Last Verified**: 2025-01-15T00:00:00Z
+- **Owners**:
   - Approvers:
     - kubeflow-maintainers
   - Reviewers:
