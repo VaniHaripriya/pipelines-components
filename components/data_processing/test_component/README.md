@@ -34,7 +34,7 @@ _component_dir = Path(__file__).resolve().parent
 if str(_component_dir) not in sys.path:
     sys.path.insert(0, str(_component_dir))
 
-from component import process_data
+from component import process_data  # noqa: E402
 
 
 @dsl.pipeline(name="test-component-simple-pipeline")
@@ -71,15 +71,15 @@ def advanced_pipeline(input_str: str = "test", multiplier: int = 3) -> str:
 
 - **Name**: test-component
 - **Stability**: alpha
-- **Dependencies**:
+- **Dependencies**: 
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.0
-- **Tags**:
+- **Tags**: 
   - data-processing
   - example
   - test
-- **Last Verified**: 2025-01-15T00:00:00Z
-- **Owners**:
+- **Last Verified**: 2025-01-15 00:00:00+00:00
+- **Owners**: 
   - Approvers:
     - kubeflow-maintainers
   - Reviewers:
