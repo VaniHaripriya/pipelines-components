@@ -1,0 +1,19 @@
+---
+name: test-component
+stability: alpha
+dependencies:
+  kubeflow:
+    - name: Pipelines
+      version: '>=2.15.0'
+tags:
+  - data-processing
+  - example
+  - test
+lastVerified: 2025-01-15T00:00:00Z
+ci:
+  compile_check: true
+  skip_dependency_probe: false
+  pytest: optional
+links:
+  documentation: https://kubeflow.org/components/test-component
+  issue_tracker: https://github.com/kubeflow/pipelines-components/issues
