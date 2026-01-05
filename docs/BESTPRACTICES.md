@@ -31,6 +31,7 @@ authors. Additional guidance will be added over time as the repository matures.
 ## Additional Topics (Coming Soon)
 
 Future revisions of this guide will capture:
+
 - Component design patterns
 - Performance optimization
 - Security best practices
