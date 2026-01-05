@@ -25,6 +25,13 @@ def prepare_yoda_dataset(
     """
     from datasets import load_dataset
 
+    # Validate inputs
+    if not yoda_input_dataset or not isinstance(yoda_input_dataset, str):
+        raise ValueError("yoda_input_dataset must be a non-empty string")
+    
+    if not (0.0 < train_split_ratio < 1.0):
+        raise ValueError(f"train_split_ratio must be between 0.0 and 1.0, got {train_split_ratio}")
+
     print(f"Downloading and loading the dataset from {yoda_input_dataset}")
     dataset = load_dataset(yoda_input_dataset, split="train")
     print("Renaming columns")
@@ -63,7 +70,19 @@ def prepare_yoda_dataset(
 
 
 if __name__ == "__main__":
+    """Compile the component for use in pipelines.
+    
+    This can also be used to test the component compilation.
+    """
+    from pathlib import Path
+    
+    output_path = Path(__file__).parent / "yoda_data_processor_component.yaml"
+    print(f"Compiling component to {output_path}")
+    
     kfp.compiler.Compiler().compile(
         prepare_yoda_dataset,
-        package_path=__file__.replace(".py", "_component.yaml"),
+        package_path=str(output_path),
     )
+    
+    print(f"✅ Component compiled successfully to {output_path}")
+    print(f"   File size: {output_path.stat().st_size} bytes")
