@@ -5,18 +5,21 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
+
+import pytest
+
+from integration_config import (
+    DOCRAG_LITE_INTEGRATION_CONFIG,
+    get_docrag_lite_integration_config,
+)
 
 
 @pytest.fixture(scope="session")
 def docrag_lite_integration_config():
     """Session-scoped RHOAI integration config from env; None if not set."""
-    from integration_config import get_docrag_lite_integration_config
-
     return get_docrag_lite_integration_config()
 
 
@@ -41,10 +44,7 @@ def kfp_client(docrag_lite_integration_config):
 
 
 def _sanitize_pipeline_yaml_to_ascii(path: Path) -> None:
-    """Overwrite file with ASCII-only content.
-
-    Done to avoid MySQL 'Incorrect string value' on backends that use a restrictive charset.
-    """
+    """Overwrite file with ASCII-only content to avoid MySQL 'Incorrect string value' on backends that use a restrictive charset."""
     with open(path, "rb") as f:
         data = f.read()
     try:
@@ -85,7 +85,9 @@ def pipeline_run_timeout():
 @pytest.fixture(scope="session")
 def s3_client(docrag_lite_integration_config):
     """Session-scoped S3 client for artifact checks (optional)."""
-    if docrag_lite_integration_config is None or not docrag_lite_integration_config.get("s3_endpoint"):
+    if docrag_lite_integration_config is None or not docrag_lite_integration_config.get(
+        "s3_endpoint"
+    ):
         return None
     try:
         import boto3
