@@ -4,11 +4,12 @@ import json
 import os
 from unittest import mock
 
-from ..component import RESPONSES_BODY_DEFAULT_QUESTION, prepare_responses_api_requests
+from ..component import prepare_responses_api_requests
 
 OUTPUT_FILENAME = "v1_responses_body.json"
 SCRIPT_FILENAME = "create_model_response.py"
 README_FILENAME = "README.md"
+RESPONSES_BODY_DEFAULT_QUESTION = "What information is available in the indexed knowledge base?"
 
 
 def _minimal_pattern(collection: str = "my_collection") -> dict:

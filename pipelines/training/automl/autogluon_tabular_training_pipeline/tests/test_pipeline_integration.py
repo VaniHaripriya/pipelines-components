@@ -18,13 +18,13 @@ import pytest
 
 def _session_rhoai_integration_config():
     """Lazy import so import-guard allows only stdlib at module scope."""
-    from integration_config import RHOAI_INTEGRATION_CONFIG
+    from .integration_config import RHOAI_INTEGRATION_CONFIG
 
     return RHOAI_INTEGRATION_CONFIG
 
 
 def _session_configs_for_run():
-    from test_configs import get_test_configs_for_run
+    from .test_configs import get_test_configs_for_run
 
     return get_test_configs_for_run()
 
@@ -118,7 +118,7 @@ class TestAutogluonPipelineIntegration:
         if test_config.problem_type == "timeseries":
             pytest.skip("Timeseries not yet supported by pipeline or test data")
         config = rhoai_integration_config
-        from test_configs import resolve_config_to_pipeline_arguments
+        from .test_configs import resolve_config_to_pipeline_arguments
 
         arguments = resolve_config_to_pipeline_arguments(test_config, uploaded_datasets, config["s3_secret_name"])
         if not arguments:
