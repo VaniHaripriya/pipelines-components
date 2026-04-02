@@ -246,11 +246,11 @@ class TestRagTemplatesOptimizationUnitTests:
             rag_templates_optimization.python_func(**defaults)
 
     def test_any_vector_store_id_is_accepted(self, tmp_path):
-        """Any non-empty llama_stack_vector_database_id string is accepted (no allowlist)."""
+        """Any non-empty llama_stack_vector_io_provider_id string is accepted (no allowlist)."""
         mocks, extracted_text, test_data, report = self._setup_llama_stack_mocks(tmp_path)
         with pytest.raises(_SentinelAbort):
             self._run_with_llama_stack(
-                mocks, extracted_text, test_data, report, llama_stack_vector_database_id="my_custom_milvus"
+                mocks, extracted_text, test_data, report, llama_stack_vector_io_provider_id="my_custom_milvus"
             )
 
     def test_ls_prefix_added_for_non_in_memory_scenario(self, tmp_path):
@@ -258,7 +258,7 @@ class TestRagTemplatesOptimizationUnitTests:
         mocks, extracted_text, test_data, report = self._setup_llama_stack_mocks(tmp_path)
         with pytest.raises(_SentinelAbort):
             self._run_with_llama_stack(
-                mocks, extracted_text, test_data, report, llama_stack_vector_database_id="milvus"
+                mocks, extracted_text, test_data, report, llama_stack_vector_io_provider_id="milvus"
             )
 
         ai4rag_exp = mocks["ai4rag.core.experiment.experiment"].AI4RAGExperiment
@@ -270,7 +270,7 @@ class TestRagTemplatesOptimizationUnitTests:
         mocks, extracted_text, test_data, report = self._setup_llama_stack_mocks(tmp_path)
         with pytest.raises(_SentinelAbort):
             self._run_with_llama_stack(
-                mocks, extracted_text, test_data, report, llama_stack_vector_database_id="ls_milvus"
+                mocks, extracted_text, test_data, report, llama_stack_vector_io_provider_id="ls_milvus"
             )
 
         ai4rag_exp = mocks["ai4rag.core.experiment.experiment"].AI4RAGExperiment
@@ -280,14 +280,16 @@ class TestRagTemplatesOptimizationUnitTests:
     def test_missing_provider_id_non_in_memory_raises_value_error(self, tmp_path):
         """None provider_id in non-in-memory (llama-stack) mode raises ValueError."""
         mocks, extracted_text, test_data, report = self._setup_llama_stack_mocks(tmp_path, abort_at_experiment=False)
-        with pytest.raises(ValueError, match="llama_stack_vector_database_id must be provided"):
-            self._run_with_llama_stack(mocks, extracted_text, test_data, report, llama_stack_vector_database_id=None)
+        with pytest.raises(ValueError, match="llama_stack_vector_io_provider_id must be provided"):
+            self._run_with_llama_stack(mocks, extracted_text, test_data, report, llama_stack_vector_io_provider_id=None)
 
     def test_whitespace_provider_id_non_in_memory_raises_value_error(self, tmp_path):
         """Whitespace-only provider_id in non-in-memory (llama-stack) mode raises ValueError."""
         mocks, extracted_text, test_data, report = self._setup_llama_stack_mocks(tmp_path, abort_at_experiment=False)
-        with pytest.raises(ValueError, match="llama_stack_vector_database_id must be provided"):
-            self._run_with_llama_stack(mocks, extracted_text, test_data, report, llama_stack_vector_database_id="   ")
+        with pytest.raises(ValueError, match="llama_stack_vector_io_provider_id must be provided"):
+            self._run_with_llama_stack(
+                mocks, extracted_text, test_data, report, llama_stack_vector_io_provider_id="   "
+            )
 
     def test_max_number_of_rag_patterns_non_numeric_string_raises_value_error(self):
         """UI may pass string parameters; non-numeric strings are rejected with a clear error."""
@@ -346,7 +348,7 @@ class TestRagTemplatesOptimizationUnitTests:
                     rag_patterns=rag_patterns,
                     embedded_artifact=embedded_artifact,
                     test_data_key="small-dataset/benchmark.json",
-                    llama_stack_vector_database_id="milvus",
+                    llama_stack_vector_io_provider_id="milvus",
                     optimization_settings={"metric": "faithfulness", "max_number_of_rag_patterns": "8"},
                 )
 

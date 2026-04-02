@@ -10,7 +10,7 @@ from kfp import dsl
 def documents_indexing(
     embedding_model_id: str,
     extracted_text: dsl.Input[dsl.Artifact],
-    llama_stack_vector_database_id: str,
+    llama_stack_vector_io_provider_id: str,
     embedding_params: Optional[dict] = None,
     distance_metric: str = "cosine",
     chunking_method: str = "recursive",
@@ -28,7 +28,7 @@ def documents_indexing(
     Args:
         embedding_model_id: Embedding model ID used for the vector store.
         extracted_text: Input artifact (folder) containing .md files from text extraction.
-        llama_stack_vector_database_id: Llama Stack provider ID for the vector database.
+        llama_stack_vector_io_provider_id: Llama Stack provider ID for the vector database.
         embedding_params: Optional embedding parameters.
         distance_metric: Vector distance metric (e.g. "cosine").
         chunking_method: Chunking method.
@@ -90,8 +90,8 @@ def documents_indexing(
     supported_chunking_methods = ("recursive",)
     supported_chunks_sizes_range = (128, 2048)
 
-    if not llama_stack_vector_database_id or not llama_stack_vector_database_id.strip():
-        raise ValueError("llama_stack_vector_database_id must be a non-empty string.")
+    if not llama_stack_vector_io_provider_id or not llama_stack_vector_io_provider_id.strip():
+        raise ValueError("llama_stack_vector_io_provider_id must be a non-empty string.")
 
     if not embedding_model_id:
         raise ValueError("embedding_model_id must be a non-empty string.")
@@ -144,7 +144,7 @@ def documents_indexing(
     ls_vectorstore = LSVectorStore(
         embedding_model=embedding_model,
         client=client,
-        provider_id=llama_stack_vector_database_id,
+        provider_id=llama_stack_vector_io_provider_id,
         distance_metric=distance_metric,
         **collection_name_param,
     )
